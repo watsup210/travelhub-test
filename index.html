@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><meta name="theme-color" content="#081d2d"/><title>Travel Hub — Multimodal Journey Planner</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f1f6f8;color:#102d3f;font:15px/1.5 system-ui,Arial}header{padding:18px max(22px,calc((100vw - 1120px)/2));color:#fff;background:#07283d;display:flex;align-items:center;justify-content:space-between}header b{font-size:24px}header small{color:#a8d8e6}.layout{max-width:1120px;margin:28px auto;padding:0 18px;display:grid;grid-template-columns:340px 1fr;gap:20px}.panel,.route{background:#fff;border:1px solid #d6e5ea;border-radius:19px;box-shadow:0 8px 28px #092f4010}.panel{padding:22px}.hero{font-size:27px;line-height:1.15;margin:0 0 8px}.muted{color:#5e7886}.field{display:block;margin-top:15px;font-weight:650}select,input,button{width:100%;padding:11px 12px;border:1px solid #b7ccd4;border-radius:11px;font:inherit;background:#fff;color:#163343}button{cursor:pointer;font-weight:700}button.primary{margin-top:20px;background:#007c8e;color:white;border:0}button.secondary{width:auto;padding:8px 12px}.switch{display:flex;gap:8px;align-items:center;margin-top:18px}.switch input{width:auto}.hint{font-size:12px;color:#6e8290}.chips{display:flex;gap:7px;flex-wrap:wrap}.chip{border:1px solid #cce2e7;padding:5px 10px;border-radius:100px;font-size:12px}.result-top{display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap;margin-bottom:15px}.route{padding:18px;margin:12px 0;cursor:pointer}.route.active{border:2px solid #0098a6}.row{display:flex;justify-content:space-between;align-items:center;gap:9px}.badges{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.tag{font-size:11px;font-weight:750;border-radius:100px;padding:4px 9px;background:#e5f6f4;color:#087482}.metrics{display:flex;gap:17px;flex-wrap:wrap;margin:11px 0}.metrics strong{display:block;font-size:18px}.steps{border-left:2px dashed #95cbd0;padding-left:15px;margin:16px 0 0 9px}.step{margin:14px 0;position:relative}.step:before{content:"";position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:#0a91a2}#details{background:#eaf6f8;padding:16px;border-radius:14px}.empty{padding:30px;border:1px dashed #aacbd6;border-radius:16px;color:#526c79}footer{text-align:center;padding:24px;color:#607582;font-size:12px}@media(max-width:730px){.layout{grid-template-columns:1fr;margin:16px auto}.hero{font-size:24px}header b{font-size:21px}.panel{padding:18px}}
+</style></head>
+<body><header><b>✦ Travel Hub</b><small>Hackathon demo · Simulated data</small></header>
+<main class="layout"><section class="panel"><h1 class="hero">Go anywhere. Choose smarter.</h1><p class="muted">Combine buses, ride-hailing and private coaches in one journey.</p>
+<label class="field" for="from">From</label><select id="from"></select>
+<label class="field" for="to">To</label><select id="to"></select>
+<label class="field" for="depart">Departure time (demo day)</label><input type="time" id="depart" value="06:00"/>
+<button id="swap" class="secondary" style="margin-top:12px">⇅ Swap locations</button>
+<label class="switch"><input type="checkbox" id="personalize" checked/> Prioritize my usual transport</label>
+<label class="field" for="preferred">Preferred mode</label><select id="preferred"><option value="mixed">Mixed journeys</option><option value="bus">Public bus</option><option value="ride">Ride-hailing</option><option value="coach">Private coach</option></select>
+<label class="switch"><input type="checkbox" id="delay"/> Simulate +25 minute bus delay</label>
+<button class="primary" id="find">Find my journey</button><p class="hint">Estimates are entirely fictional. Not for real travel or reservations.</p></section>
+<section><div class="result-top"><div><h2 style="margin:0">Your journey options</h2><div class="muted" id="summary">Choose two destinations to explore.</div></div><div class="chips"><span class="chip">🚌 Bus</span><span class="chip">🚕 Ride</span><span class="chip">🚍 Coach</span></div></div>
+<div id="results"></div><div id="details" hidden></div></section></main>
+<footer>Travel Hub · Working route-planning demonstration on a small fictional network · No live operator data.</footer>
+<script>
+const nodes=[
+{id:'vgu',name:'VGU Campus'},{id:'bienhoa',name:'Biên Hòa'},{id:'thuduc',name:'Thủ Đức'},{id:'mientdong',name:'Miền Đông Terminal'},
+{id:'district1',name:'District 1, HCMC'},{id:'dalat',name:'Đà Lạt Station'},{id:'hotel',name:'Đà Lạt Hotel'},{id:'vungtau',name:'Vũng Tàu Station'},{id:'beach',name:'Vũng Tàu Beach'}];
+const edges=[];const add=(a,b,mode,time,cost,extra={})=>edges.push({a,b,mode,time,cost,...extra});
+const both=(a,b,mode,time,cost,extra={})=>{add(a,b,mode,time,cost,extra);add(b,a,mode,time,cost,extra)};
+both('vgu','bienhoa','ride',26,95000);both('vgu','thuduc','bus',48,18000,{headway:25,start:330,end:1270});
+both('bienhoa','thuduc','bus',50,17000,{headway:20,start:320,end:1280});both('bienhoa','thuduc','ride',32,165000);
+both('thuduc','district1','bus',45,12000,{headway:15,start:330,end:1320});both('thuduc','district1','ride',25,110000);
+both('bienhoa','district1','ride',55,285000);both('thuduc','mientdong','bus',20,8000,{headway:15,start:330,end:1270});
+both('mientdong','district1','bus',43,12000,{headway:20,start:330,end:1270});both('mientdong','district1','ride',24,115000);
+both('bienhoa','dalat','coach',385,315000,{departures:[360,780,1320],operator:'Highland Limousine (fictional)'});
+both('mientdong','dalat','coach',375,295000,{departures:[390,600,840,1320],operator:'Highland Coach (fictional)'});
+both('dalat','hotel','ride',17,58000);both('dalat','hotel','bus',32,18000,{headway:30,start:360,end:1260});
+both('bienhoa','vungtau','coach',130,145000,{departures:[390,570,810,1050],operator:'Coastal Express (fictional)'});
+both('vungtau','beach','ride',10,35000);both('vungtau','beach','bus',25,8000,{headway:30,start:360,end:1200});
+const $=id=>document.getElementById(id);const name=id=>nodes.find(n=>n.id===id)?.name||id;const money=n=>new Intl.NumberFormat('vi-VN').format(n)+'đ';const clock=n=>String(Math.floor(n/60)%24).padStart(2,'0')+':'+String(n%60).padStart(2,'0');
+function nextDeparture(e,ready){if(e.mode==='ride')return ready+3;
+if(e.departures)return e.departures.find(x=>x>=ready)??null;
+if(e.headway){const first=e.start??0,last=e.end??1440;return ready>last?null:Math.max(first,first+Math.ceil(Math.max(0,ready-first)/e.headway)*e.headway)}
+return ready}
+function findRoutes(start,end,time,delay){let out=[];function walk(at,t,cost,parts,seen,walking){if(out.length>900)return;if(at===end){out.push({parts,time:t-time,cost,walking,arrival:t});return}if(parts.length>=5||t-time>1100)return;
+for(const e of edges){if(e.a!==at||seen.has(e.b))continue;let ready=t+(parts.length?8:0);let dep=nextDeparture(e,ready);if(dep===null)continue;let rideTime=e.time+(delay&&e.mode==='bus'?25:0);let arrival=dep+rideTime;
+if(arrival-time>1100)continue;walk(e.b,arrival,cost+e.cost,[...parts,{...e,dep,arrival,wait:dep-t}],new Set([...seen,e.b]),walking+(e.mode==='walk'?e.time*75:0))}}
+walk(start,time,0,[],new Set([start]),0);
+const uniq=new Map();for(const r of out){const k=r.parts.map(p=>p.a+p.b+p.mode).join('/');if(!uniq.has(k)||uniq.get(k).time>r.time)uniq.set(k,r)}
+return [...uniq.values()].filter(r=>r.parts.length).sort((a,b)=>a.time-b.time).slice(0,80)}
+function rank(routes){if(!routes.length)return[];let maxC=Math.max(1,...routes.map(r=>r.cost)),maxT=Math.max(1,...routes.map(r=>r.time));let preferred=$('preferred').value,personal=$('personalize').checked;
+const scored=routes.map(r=>{let modes=r.parts.map(p=>p.mode),mixed=new Set(modes).size>1,match=preferred==='mixed'?mixed:modes.includes(preferred);
+let score=.48*r.cost/maxC+.44*r.time/maxT+.08*Math.max(0,r.parts.length-1)/4-(personal&&match?.065:0);return {...r,score}});
+const cheapest=[...scored].sort((a,b)=>a.cost-b.cost||a.time-b.time)[0];const fastest=[...scored].sort((a,b)=>a.time-b.time||a.cost-b.cost)[0];const balanced=[...scored].sort((a,b)=>a.score-b.score)[0];
+return [...scored].sort((a,b)=>a.score-b.score).slice(0,10).map(r=>({...r,tags:[r===cheapest?'Cheapest':null,r===fastest?'Fastest':null,r===balanced?'Best balance':null].filter(Boolean)}))}
+let current=[];function render(){const a=$('from').value,b=$('to').value,t=$('depart').value.split(':').map(Number);$('summary').textContent=name(a)+' → '+name(b)+' · '+$('depart').value;
+if(a===b){$('results').innerHTML='<div class="empty">Please choose two different locations.</div>';$('details').hidden=true;return}
+current=rank(findRoutes(a,b,t[0]*60+t[1],$('delay').checked));
+if(!current.length){$('results').innerHTML='<div class="empty">No feasible journey in the simulated network at this time. Try another route or departure time.</div>';$('details').hidden=true;return}
+const bestCost=Math.min(...current.map(r=>r.cost)),bestTime=Math.min(...current.map(r=>r.time));
+$('results').innerHTML=current.slice(0,6).map((r,i)=>'<article class="route" data-i="'+i+'"><div class="row"><b>Option '+(i+1)+' · '+r.parts.map(p=>p.mode==='ride'?'Ride':p.mode==='bus'?'Bus':p.mode==='coach'?'Coach':'Walk').join(' → ')+'</b><strong>'+money(r.cost)+'</strong></div><div class="badges">'+r.tags.map(x=>'<span class="tag">'+x+'</span>').join('')+'</div><div class="metrics"><div><strong>'+r.time+' min</strong><small>total</small></div><div><strong>'+clock(r.arrival)+'</strong><small>arrives</small></div><div><strong>'+Math.max(0,r.parts.length-1)+'</strong><small>transfers</small></div></div><div class="muted">Cost: '+(r.cost===bestCost?'lowest in shown results':money(r.cost))+' · Time: '+(r.time===bestTime?'fastest in shown results':r.time+' min')+'</div></article>').join('');
+document.querySelectorAll('.route').forEach(el=>el.addEventListener('click',()=>detail(Number(el.dataset.i))));detail(0)}
+function detail(i){document.querySelectorAll('.route').forEach((x,j)=>x.classList.toggle('active',i===j));const r=current[i];$('details').hidden=false;
+$('details').innerHTML='<div class="row"><h3 style="margin:0">Journey details</h3><b>'+money(r.cost)+'</b></div><p class="muted">Arrival '+clock(r.arrival)+' · '+r.time+' minutes · All simulated</p><div class="steps">'+r.parts.map(p=>'<div class="step"><strong>'+name(p.a)+' → '+name(p.b)+'</strong><br>'+p.mode.toUpperCase()+' · '+clock(p.dep)+'–'+clock(p.arrival)+' · '+money(p.cost)+(p.wait>0?' · waiting '+p.wait+' min':'')+(p.operator?' · '+p.operator:'')+'</div>').join('')+'</div><p class="hint">This is not navigation or a real ticket. Prices, routes and schedules are fictional.</p>'}
+for(const field of ['from','to'])$(''+field).innerHTML=nodes.map(n=>'<option value="'+n.id+'">'+n.name+'</option>').join('');
+$('from').value='bienhoa';$('to').value='district1';$('swap').onclick=()=>{let tmp=$('from').value;$('from').value=$('to').value;$('to').value=tmp;render()};
+$('find').onclick=render;$('delay').onchange=render;$('preferred').onchange=render;$('personalize').onchange=render;render();
+</script></body></html>
